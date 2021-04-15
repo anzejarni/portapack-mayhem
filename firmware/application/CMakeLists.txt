@@ -140,7 +140,6 @@ set(CPPSRC
 	${COMMON}/png_writer.cpp
 	${COMMON}/pocsag.cpp
 	${COMMON}/pocsag_packet.cpp
-	${COMMON}/aprs_packet.cpp
 	${COMMON}/portapack_io.cpp
 	${COMMON}/portapack_persistent_memory.cpp
 	${COMMON}/portapack_shared_memory.cpp
@@ -160,6 +159,7 @@ set(CPPSRC
 	clock_manager.cpp
 	core_control.cpp
 	de_bruijn.cpp
+	de_bruijn2.cpp
 	#emu_cc1101.cpp
 	rfm69.cpp
 	event_m0.cpp
@@ -219,7 +219,6 @@ set(CPPSRC
 	apps/ui_adsb_rx.cpp
 	apps/ui_adsb_tx.cpp
 	apps/ui_afsk_rx.cpp
-	apps/ui_aprs_rx.cpp
 	apps/ui_btle_rx.cpp
 	apps/ui_nrf_rx.cpp
 	apps/ui_aprs_tx.cpp
