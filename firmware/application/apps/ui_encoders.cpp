@@ -94,16 +94,23 @@ void EncodersView::db_callback(char* seq_part, uint8_t seq_part_len) {
 
 			//Check for delay between transmissions
 			if (scan_delay.value() > 0) {
-				transmitter_model.disable();
+				//transmitter_model.disable();
 				chThdSleepMilliseconds(scan_delay.value());
-				transmitter_model.enable();
+				//transmitter_model.enable();
 			}
 
+			db_code_sent = false;
+
+			afsk_repeats = 1;
 			baseband::set_ook_data(
 				bitstream_length,
 				samples_per_bit(),
 				afsk_repeats,
 				pause_symbols());
+
+			while (!db_code_sent) {
+				chThdSleepMilliseconds(1);
+			}
 
 			db_codes_done++;
 			
@@ -114,8 +121,6 @@ void EncodersView::db_callback(char* seq_part, uint8_t seq_part_len) {
 
 			progressbar.set_max(db_codes_total);
 			progressbar.set_value(db_codes_done);
-
-			chThdSleepMilliseconds(1);			
 
 			//Clear tmp
 			db_tmp_pos = 0; 			
@@ -253,6 +258,8 @@ void EncodersView::update_progress() {
 	}
 
 void EncodersView::on_tx_progress(const uint32_t progress, const bool done)	{
+	if (done) db_code_sent = true;
+
 	if (!done)
 	{ // Repeating...
 		repeat_index = progress + 1;

@@ -27,6 +27,7 @@
 #include "de_bruijn2.hpp"
 #include "log_file.hpp"
 #include "thread_wait.hpp"
+#include <atomic>
 
 using namespace encoders;
 
@@ -54,6 +55,7 @@ public:
 	uint8_t db_tmp_pos = 0;
 	uint32_t db_codes_done = 0;
 	uint32_t db_codes_total = 0;
+	std::atomic<bool> db_code_sent;
 	uint8_t repeat_index { 0 };
 	uint32_t scan_index;
 	double scan_progress;
