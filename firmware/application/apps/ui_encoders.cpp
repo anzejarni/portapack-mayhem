@@ -45,7 +45,7 @@ static msg_t db_thread_fn(void * arg) {
 	char* charset = (char*) arg_c->encoder_def->address_symbols;
 
 	uint16_t k = (uint16_t) strlen(arg_c->encoder_def->address_symbols);
-	uint32_t maxlen = pow((uint32_t)k, arg_c->bits_per_packet);
+	uint32_t maxlen = pow((uint32_t)k, arg_c->bits_per_packet) + (k-1)*arg_c->bits_per_packet;
 
 	uint8_t a[k * arg_c->bits_per_packet];
 	memset(a, 0, k * arg_c->bits_per_packet);
@@ -64,10 +64,11 @@ static msg_t db_thread_fn(void * arg) {
 	transmitter_model.set_baseband_bandwidth(1750000);
 	transmitter_model.enable();
 
-	//std::string file_path = "DEBRUIJN.TXT";
-	//auto result = log_file.append(file_path); 
+	std::string file_path = "DEBRUIJN.TXT";
+	auto result = arg_c->log_file.append(file_path); 
+
 	arg_c->db_seq.init();
-	arg_c->db_seq.db_callback(1, 1, arg_c->bits_per_packet, maxlen, 0, k, a, charset, std::bind(&EncodersView::db_callback, arg_c, std::placeholders::_1, std::placeholders::_2));
+	arg_c->db_seq.db_callback(1, 1, arg_c->bits_per_packet, maxlen, -1, k, a, charset, std::bind(&EncodersView::db_callback, arg_c, std::placeholders::_1, std::placeholders::_2));
 	transmitter_model.disable();
 	arg_c->tx_view.set_transmitting(false);
 	arg_c->button_scan.set_text("Scan");
@@ -86,22 +87,14 @@ void EncodersView::db_callback(char* seq_part, uint8_t seq_part_len) {
 		db_tmp[db_tmp_pos] = seq_part[i];
 		if (db_tmp_pos == bits_per_packet-1)
 		{		
-			//log_file.write_line(db_tmp);
+			log_file.write_line(db_tmp);
 			generate_frame(true);	
 
 			//Send
 			size_t bitstream_length = make_bitstream(frame_fragments);
-
-			//Check for delay between transmissions
-			if (scan_delay.value() > 0) {
-				//transmitter_model.disable();
-				chThdSleepMilliseconds(scan_delay.value());
-				//transmitter_model.enable();
-			}
-
 			db_code_sent = false;
 
-			afsk_repeats = 1;
+			afsk_repeats = field_afskrepeats.value();
 			baseband::set_ook_data(
 				bitstream_length,
 				samples_per_bit(),
@@ -361,7 +354,7 @@ void EncodersView::on_tx_progress(const uint32_t progress, const bool done)	{
 						&options_enctype,
 						&field_clk,
 						&field_frameduration,
-						&scan_delay,
+						&field_afskrepeats,
 						&symfield_word,
 						&text_format,
 						&waveform,
@@ -381,6 +374,8 @@ void EncodersView::on_tx_progress(const uint32_t progress, const bool done)	{
 		
 		options_enctype.set_options(enc_options);
 		options_enctype.set_selected_index(0);
+
+		field_afskrepeats.set_value(1);
 		
 		symfield_word.on_change = [this]() {
 			generate_frame(false);

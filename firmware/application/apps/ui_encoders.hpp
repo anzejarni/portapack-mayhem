@@ -81,6 +81,8 @@ public:
 		"Scan"
 	};
 
+	File log_file;
+
 private:
 	NavigationView& nav_;
 
@@ -91,8 +93,6 @@ private:
 	char str[16];
 	uint8_t afsk_repeats;	
 	Thread * db_thread { nullptr };
-	
-	//File log_file;
 	
 	void update_progress();
 	void start_tx(const bool scan);
@@ -113,8 +113,8 @@ private:
 		{ { 24 * 8, 1 * 8}, "kHz", Color::light_grey() },
 		{ { 14 * 8, 3 * 8 }, "Frame:", Color::light_grey() },
 		{ { 26 * 8, 3 * 8 }, "us", Color::light_grey() },
-		{ { 14 * 8, 5 * 8 }, "Delay:", Color::light_grey() },
-		{ { 26 * 8, 5 * 8 }, "ms", Color::light_grey() },
+		{ { 14 * 8, 5 * 8 }, "Repeat:", Color::light_grey() },
+		{ { 26 * 8, 5 * 8 }, "x", Color::light_grey() },
 
 		{ { 2 * 8, 5 * 8 }, "Symbols:", Color::light_grey() },
 		{ { 1 * 8, 13 * 8 }, "Waveform:", Color::light_grey() }
@@ -135,10 +135,10 @@ private:
 		' '
 	};
 
-	NumberField scan_delay {
+	NumberField field_afskrepeats {
 		{ 21 * 8, 5 * 8 },
 		5,
-		{ 0, 99999 },
+		{ 1, 10 },
 		1,
 		' '
 	};	
